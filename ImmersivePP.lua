@@ -53,11 +53,16 @@ end
 -- In the modern theme, crop the built-in icon border (~8%) so the class and
 -- buff icons read as clean edge-to-edge rectangles instead of the default
 -- rounded/beveled look. Cropping keeps sharpness (no downscaling).
-local ICON_CROP = 0.08
+local ICON_CROP = 0.08        -- buff-bar icons (looked right)
+local CLASS_CROP = 0.14       -- assignment class/skill icons need a deeper crop
+
+local function Style()
+    return (ImmersivePallyPower_CurrentStyle and ImmersivePallyPower_CurrentStyle()) or "modern"
+end
+local function IsFlat() local s = Style(); return s == "modern" or s == "minimal" end
+
 local function CropIcons(btn)
-    if ImmersivePallyPower_CurrentStyle and ImmersivePallyPower_CurrentStyle() ~= "modern" then
-        return
-    end
+    if not IsFlat() then return end
     local name = btn:GetName()
     if not name then return end
     local lo, hi = ICON_CROP, 1 - ICON_CROP
@@ -70,20 +75,19 @@ end
 -- Crop the assignment-frame icons (skill icons + class-assignment icons) the
 -- same way, so the raid-lead grid gets clean rectangular icons in modern.
 local function CropAssignmentIcons()
-    if ImmersivePallyPower_CurrentStyle and ImmersivePallyPower_CurrentStyle() ~= "modern" then
-        return
-    end
-    local lo, hi = ICON_CROP, 1 - ICON_CROP
+    if not IsFlat() then return end
+    local slo, shi = ICON_CROP, 1 - ICON_CROP           -- skill icons
+    local clo, chi = CLASS_CROP, 1 - CLASS_CROP          -- class icons (deeper)
     for i = 1, 12 do
         local row = getglobal("PallyPowerFramePlayer" .. i)
         if row and row:IsShown() then
             for id = 0, 5 do
                 local ic = getglobal("PallyPowerFramePlayer" .. i .. "Icon" .. id)
-                if ic and ic.SetTexCoord then ic:SetTexCoord(lo, hi, lo, hi) end
+                if ic and ic.SetTexCoord then ic:SetTexCoord(slo, shi, slo, shi) end
             end
             for id = 0, 9 do
                 local ci = getglobal("PallyPowerFramePlayer" .. i .. "Class" .. id .. "Icon")
-                if ci and ci.SetTexCoord then ci:SetTexCoord(lo, hi, lo, hi) end
+                if ci and ci.SetTexCoord then ci:SetTexCoord(clo, chi, clo, chi) end
             end
         end
     end
@@ -92,9 +96,7 @@ end
 -- In the modern theme the buttons have no coloured box, so convey status on
 -- the count text: red = nobody buffed, yellow = some still missing.
 local function ColorStatusText(btn)
-    if ImmersivePallyPower_CurrentStyle and ImmersivePallyPower_CurrentStyle() ~= "modern" then
-        return
-    end
+    if not IsFlat() then return end
     local name = btn:GetName()
     local txt = name and getglobal(name .. "Text")
     if not txt then return end
@@ -122,13 +124,19 @@ local function Relayout()
         end
     end
 
+    -- minimal theme: tighter padding, no title strip, hidden time text
+    local minimal = (Style() == "minimal")
+    local pad = minimal and 2 or PAD
+    local titleH = minimal and 4 or TITLE_H
+    local titleFrame = getglobal("PallyPowerBuffBarTitle")
+    if titleFrame then if minimal then titleFrame:Hide() else titleFrame:Show() end end
+
     local cols = db.columns
     if cols < 1 then cols = 1 end
     local n = table.getn(shown)
     if n == 0 then
-        -- nothing needs casting; immersive mode fades the whole bar out
-        bar:SetWidth(BUTTON_W + PAD * 2)
-        bar:SetHeight(TITLE_H + 8)
+        bar:SetWidth(BUTTON_W + pad * 2)
+        bar:SetHeight(titleH + 8)
         return
     end
 
@@ -138,19 +146,22 @@ local function Relayout()
         local b = shown[i]
         local col = math.mod(i - 1, cols)
         local row = math.floor((i - 1) / cols)
-        local x = PAD + col * colW
-        local y = -(TITLE_H) - row * rowH
-        if not db.growDown then y = -(TITLE_H) - (math.floor((n - 1) / cols) - row) * rowH end
+        local x = pad + col * colW
+        local y = -(titleH) - row * rowH
+        if not db.growDown then y = -(titleH) - (math.floor((n - 1) / cols) - row) * rowH end
         b:ClearAllPoints()
         b:SetPoint("TOPLEFT", bar, "TOPLEFT", x, y)
         ColorStatusText(b)
         CropIcons(b)
+        -- minimal: hide the cooldown-time text to reduce clutter; count stays
+        local tm = getglobal(b:GetName() .. "Time")
+        if tm then if minimal then tm:Hide() else tm:Show() end end
     end
 
     local usedCols = (n < cols) and n or cols
     local usedRows = math.floor((n - 1) / cols) + 1
-    bar:SetWidth(PAD * 2 + usedCols * colW - db.spacing)
-    bar:SetHeight(TITLE_H + usedRows * rowH + 6)
+    bar:SetWidth(pad * 2 + usedCols * colW - db.spacing)
+    bar:SetHeight(titleH + usedRows * rowH + (minimal and 2 or 6))
 end
 
 -- fade the whole bar based on whether anything needs casting
@@ -212,6 +223,9 @@ local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("VARIABLES_LOADED")
 eventFrame:SetScript("OnEvent", function()
     if event ~= "VARIABLES_LOADED" then return end
+    -- rebind to the saved table: SavedVariables replace the global, so the
+    -- reference captured at file load can be stale (settings wouldn't persist)
+    db = ImmersivePallyPowerDB
     InitDefaults()
     -- install the hook once PallyPower's function exists
     if PallyPower_UpdateUI and not origUpdateUI then

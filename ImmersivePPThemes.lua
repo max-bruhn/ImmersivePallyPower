@@ -21,12 +21,16 @@ local function GetPixel()
 end
 
 local STYLE = "modern"
+local function normStyle(s)
+    if s == "classic" or s == "minimal" then return s end
+    return "modern"
+end
 local function ResolveStyle()
-    STYLE = (ImmersivePallyPowerDB.style == "classic") and "classic" or "modern"
+    STYLE = normStyle(ImmersivePallyPowerDB.style)
 end
 
 function ImmersivePallyPower_CurrentStyle()
-    return (ImmersivePallyPowerDB.style == "classic") and "classic" or "modern"
+    return normStyle(ImmersivePallyPowerDB.style)
 end
 
 local function ModernPanel(f, a)
@@ -116,8 +120,7 @@ StaticPopupDialogs["IMMERSIVEPALLYPOWER_RELOAD"] = {
 }
 
 function ImmersivePallyPower_SetTheme(s)
-    if s ~= "classic" then s = "modern" end
-    ImmersivePallyPowerDB.style = s
+    ImmersivePallyPowerDB.style = normStyle(s)
     DEFAULT_CHAT_FRAME:AddMessage("ImmersivePallyPower: theme set to " .. s .. " (reload to apply).")
     StaticPopup_Show("IMMERSIVEPALLYPOWER_RELOAD")
 end

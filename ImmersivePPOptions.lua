@@ -99,6 +99,7 @@ local function HostCheck(name, label, x, y)
 end
 
 local function Build()
+    db = ImmersivePallyPowerDB   -- rebind to the saved table (see ImmersivePP.lua)
     panel = CreateFrame("Frame", "ImmersivePPOptions", UIParent)
     panel:SetWidth(340); panel:SetHeight(392)
     panel:SetPoint("CENTER", UIParent, "CENTER", 0, 60)
@@ -144,7 +145,7 @@ local function Build()
     themeLabel:SetText("|cffffd200Theme|r")
 
     themeButtons = {}
-    local defs = { { "modern", "Modern", 0 }, { "classic", "Classic", 76 } }
+    local defs = { { "modern", "Modern", 0 }, { "minimal", "Minimal", 76 }, { "classic", "Classic", 152 } }
     for i = 1, table.getn(defs) do
         local key, lbl, off = defs[i][1], defs[i][2], defs[i][3]
         local b = Btn(panel, 70, lbl, function()
