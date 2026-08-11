@@ -76,7 +76,7 @@ PALLYPOWER_OPTIONS_SCAN = "Scan Frequency (seconds):";
 PALLYPOWER_OPTIONS_SCAN2 = "Poll Per Frame: ";
 PALLYPOWER_OPTIONS_FEEDBACK_CHAT = "Show feedback in chat";
 PALLYPOWER_OPTIONS_SMARTBUFFS = "Smart Buffs";
-PALLYPOWER_OPTIONS_FIVEMIN = "Enable 5 Min Blessing Only - NO GREATER BLESSINGS";
+PALLYPOWER_OPTIONS_FIVEMIN = "Normal blessings only (10 min) - no Greater Blessings";
 if (GetLocale() == "deDE") then
 	-- by Nextorus @ EU-Alexstrasza (nexter@walsweer.de)
     PallyPower_BlessingID[0] = "Weisheit";

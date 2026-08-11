@@ -80,9 +80,27 @@ local function RefreshThemeButtons()
     end
 end
 
+-- reparent a PallyPower checkbox into our panel with our own label
+local function HostCheck(name, label, x, y)
+    local c = getglobal(name)
+    if not c then return end
+    c:SetParent(panel)
+    c:ClearAllPoints()
+    c:SetPoint("TOPLEFT", panel, "TOPLEFT", x, y)
+    c:SetWidth(22); c:SetHeight(22)
+    c:Show()
+    if not c.idcLabel then
+        local t = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        t:SetPoint("LEFT", c, "RIGHT", 2, 0)
+        c.idcLabel = t
+    end
+    c.idcLabel:SetText(label)
+    c.idcLabel:Show()
+end
+
 local function Build()
     panel = CreateFrame("Frame", "ImmersivePPOptions", UIParent)
-    panel:SetWidth(320); panel:SetHeight(300)
+    panel:SetWidth(340); panel:SetHeight(392)
     panel:SetPoint("CENTER", UIParent, "CENTER", 0, 60)
     panel:SetFrameStrata("DIALOG")
     Flat(panel, 0.06, 0.06, 0.06, 0.95)
@@ -113,8 +131,16 @@ local function Build()
     Slider(panel, "ImmersivePPSpacing", "Spacing", 20, -184, 0, 12, 1,
         function() return db.spacing end, function(v) db.spacing = v end)
 
+    -- PallyPower's own options, merged in (reparented from its options frame)
+    local ppLabel = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    ppLabel:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -212)
+    ppLabel:SetText("|cffffd200PallyPower|r")
+    HostCheck("PallyPower_OptionsFrameSmart",    "Smart buffs (auto-pick best blessing)", 14, -230)
+    HostCheck("PallyPower_OptionsFrameFeedback", "Chat feedback on cast",                 14, -252)
+    HostCheck("FiveMinBlessingChk",              "Normal blessings only (10 min, no Greater)", 14, -274)
+
     local themeLabel = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    themeLabel:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -214)
+    themeLabel:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -304)
     themeLabel:SetText("|cffffd200Theme|r")
 
     themeButtons = {}
@@ -131,7 +157,7 @@ local function Build()
 
     local note = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     note:SetPoint("BOTTOMLEFT", panel, "BOTTOMLEFT", 14, 20)
-    note:SetText("|cff888888Original PallyPower options: its own Options button.|r")
+    note:SetText("|cff888888Open any time with /ipp config|r")
 
     local ver = GetAddOnMetadata and GetAddOnMetadata("ImmersivePallyPower", "Version")
     local verText = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -156,5 +182,7 @@ eventFrame:SetScript("OnEvent", function()
         if waited < 0.35 then return end
         delay:SetScript("OnUpdate", nil)
         pcall(Build)
+        -- PallyPower's Options button now opens our merged panel
+        PallyPower_Options = ImmersivePallyPower_OpenOptions
     end)
 end)
