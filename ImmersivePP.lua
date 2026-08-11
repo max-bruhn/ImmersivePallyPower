@@ -174,6 +174,25 @@ eventFrame:SetScript("OnEvent", function()
     end
     ticker = CreateFrame("Frame")
     ticker:SetScript("OnUpdate", TickerUpdate)
+
+    -- Fix a latent PallyPower crash: MouseDown only records startPosX on an
+    -- unlocked left-click, but MouseUp reads it unconditionally -> a right-
+    -- click or locked-bar release throws "arithmetic on nil". Guard it.
+    PallyPowerBuffBar_MouseUp = function()
+        local bar = getglobal("PallyPowerBuffBar")
+        if not bar then return end
+        if bar.isMoving then
+            bar:StopMovingOrSizing()
+            bar.isMoving = false
+        end
+        if bar.startPosX and bar.startPosY and bar:GetLeft() and bar:GetTop()
+            and abs(bar.startPosX - bar:GetLeft()) < 2
+            and abs(bar.startPosY - bar:GetTop()) < 2 then
+            if PallyPowerFrame then PallyPowerFrame:Show() end
+            if PallyPower_UpdateUI then PallyPower_UpdateUI() end
+        end
+    end
+
     DEFAULT_CHAT_FRAME:AddMessage("|cff33ffccImmersive PallyPower|r loaded. Type |cffffffff/ipp|r for options.")
 end)
 
