@@ -178,6 +178,12 @@ local function HookedUpdateUI()
     if origUpdateUI then origUpdateUI() end
     Relayout()
     ApplyScale()
+    -- the assignment grid is not updated on the periodic cycle, so re-crop its
+    -- icons here too (cheap; skips hidden rows) - one-shot after Grid_Update
+    -- was not reliably sticking
+    if getglobal("PallyPowerFrame") and getglobal("PallyPowerFrame"):IsShown() then
+        CropAssignmentIcons()
+    end
     -- retarget the fade
     local want = DesiredAlpha()
     if want ~= fade.target then
