@@ -175,9 +175,60 @@ end
 -- ---------------------------------------------------------------------------
 -- Hook PallyPower's UI update so our layout/immersive pass runs right after
 -- ---------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
+-- Demo mode: fill the bar with random classes/blessings and missing counts so
+-- the layout, themes and opacity can be tested without a real raid.
+-- ---------------------------------------------------------------------------
+local demoOn = false
+
+function ImmersivePallyPower_ToggleDemo()
+    demoOn = not demoOn
+    local bar = Bar()
+    if demoOn then
+        for i = 1, 8 do
+            local nm = "PallyPowerBuffBarBuff" .. i
+            local btn = getglobal(nm)
+            if btn then
+                local class = math.mod(i - 1, 9)
+                local buff = math.mod(i - 1, 6)
+                -- first few always missing so the bar is visible to inspect
+                local nneed = (i <= 3) and math.random(1, 4) or math.random(0, 4)
+                local nhave = math.random(0, 5)
+                btn.need, btn.have = {}, {}
+                for k = 1, nneed do table.insert(btn.need, "demo" .. k) end
+                for k = 1, nhave do table.insert(btn.have, "have" .. k) end
+                btn.classID, btn.buffID = class, buff
+                local ci = getglobal(nm .. "ClassIcon")
+                if ci and PallyPower_ClassTexture then ci:SetTexture(PallyPower_ClassTexture[class]) end
+                local bi = getglobal(nm .. "BuffIcon")
+                if bi and BlessingIcon then bi:SetTexture(BlessingIcon[buff]) end
+                local tx = getglobal(nm .. "Text")
+                if tx then tx:SetText(nneed) end
+                local tm = getglobal(nm .. "Time")
+                if tm then tm:SetText("10:00") end
+                if btn.SetBackdropColor then
+                    if nhave == 0 then btn:SetBackdropColor(1, 0, 0, 0.5)
+                    elseif nneed > 0 then btn:SetBackdropColor(1, 1, 0.5, 0.5)
+                    else btn:SetBackdropColor(0, 0, 0, 0.5) end
+                end
+                btn:Show()
+            end
+        end
+        if bar then bar:Show() end
+    else
+        for i = 1, 10 do
+            local btn = getglobal("PallyPowerBuffBarBuff" .. i)
+            if btn then btn.need, btn.have = {}, {} end
+        end
+    end
+    if PallyPower_UpdateUI then PallyPower_UpdateUI() end
+    return demoOn
+end
+
 local origUpdateUI
 local function HookedUpdateUI()
-    if origUpdateUI then origUpdateUI() end
+    -- while demoing, skip the real update so our fake buttons are not cleared
+    if origUpdateUI and not demoOn then origUpdateUI() end
     Relayout()
     ApplyScale()
     -- the assignment grid is not updated on the periodic cycle, so re-crop its
@@ -283,6 +334,8 @@ SlashCmdList["IMMERSIVEPALLYPOWER"] = function(msg)
     elseif cmd == "grow" then
         db.growDown = not db.growDown
         DEFAULT_CHAT_FRAME:AddMessage("ImmersivePallyPower: grows " .. (db.growDown and "down" or "up"))
+    elseif cmd == "demo" then
+        ImmersivePallyPower_ToggleDemo()
     else
         DEFAULT_CHAT_FRAME:AddMessage("|cff33ffccImmersive PallyPower|r commands:")
         DEFAULT_CHAT_FRAME:AddMessage("/ipp immersive   - hide the bar until a buff is missing")

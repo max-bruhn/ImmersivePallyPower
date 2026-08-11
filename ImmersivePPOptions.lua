@@ -101,7 +101,7 @@ end
 local function Build()
     db = ImmersivePallyPowerDB   -- rebind to the saved table (see ImmersivePP.lua)
     panel = CreateFrame("Frame", "ImmersivePPOptions", UIParent)
-    panel:SetWidth(340); panel:SetHeight(428)
+    panel:SetWidth(340); panel:SetHeight(456)
     panel:SetPoint("CENTER", UIParent, "CENTER", 0, 60)
     panel:SetFrameStrata("DIALOG")
     Flat(panel, 0.06, 0.06, 0.06, 0.95)
@@ -158,6 +158,12 @@ local function Build()
         b.styleName = lbl
         themeButtons[key] = b
     end
+
+    local demoBtn = Btn(panel, 150, "Demo (test layout)", function()
+        local on = ImmersivePallyPower_ToggleDemo and ImmersivePallyPower_ToggleDemo()
+        this.label:SetText(on and "|cff33ffccStop demo|r" or "Demo (test layout)")
+    end)
+    demoBtn:SetPoint("TOPLEFT", themeLabel, "BOTTOMLEFT", 0, -34)
 
     local note = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     note:SetPoint("BOTTOMLEFT", panel, "BOTTOMLEFT", 14, 20)
