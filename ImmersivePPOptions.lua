@@ -58,12 +58,21 @@ local function Slider(parent, name, label, x, y, lo, hi, step, get, set)
     getglobal(name .. "Text"):SetText(label)
     local val = parent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     val:SetPoint("LEFT", s, "RIGHT", 8, 0)
+    -- clean display: integers for whole-number steps, else 2 decimals
+    local function fmt(v)
+        if step >= 1 then return tostring(math.floor(v + 0.5)) end
+        return string.format("%.2f", v)
+    end
     s:SetValue(get())
-    val:SetText(get())
+    val:SetText(fmt(get()))
     s:SetScript("OnValueChanged", function()
         local v = this:GetValue()
-        if step >= 1 then v = math.floor(v + 0.5) end
-        set(v); val:SetText(step < 1 and string.format("%.1f", v) or v); Apply()
+        if step >= 1 then
+            v = math.floor(v + 0.5)
+        else
+            v = math.floor(v * 100 + 0.5) / 100   -- round stored value to 2dp
+        end
+        set(v); val:SetText(fmt(v)); Apply()
     end)
     return s
 end

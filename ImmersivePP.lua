@@ -134,25 +134,33 @@ local function Relayout()
         return
     end
 
-    local rowH = BUTTON_H + db.spacing
-    local colW = BUTTON_W + db.spacing
+    -- The button frame is 34px but its icons are only 26px (4px padding top and
+    -- bottom). In modern we pack by the icon height so spacing 0 = icons flush,
+    -- and hide the cooldown-time text (it would collide when packed tight).
+    local modern = IsFlat()
+    local ICON = 26
+    local rowH = (modern and ICON or BUTTON_H) + db.spacing
+    local colW = (modern and (ICON * 2) or BUTTON_W) + db.spacing
+    local titleH = modern and 20 or TITLE_H
     for i = 1, n do
         local b = shown[i]
         local col = math.mod(i - 1, cols)
         local row = math.floor((i - 1) / cols)
         local x = PAD + col * colW
-        local y = -(TITLE_H) - row * rowH
-        if not db.growDown then y = -(TITLE_H) - (math.floor((n - 1) / cols) - row) * rowH end
+        local y = -(titleH) - row * rowH
+        if not db.growDown then y = -(titleH) - (math.floor((n - 1) / cols) - row) * rowH end
         b:ClearAllPoints()
         b:SetPoint("TOPLEFT", bar, "TOPLEFT", x, y)
         ColorStatusText(b)
         CropIcons(b)
+        local tm = getglobal(b:GetName() .. "Time")
+        if tm then if modern then tm:Hide() else tm:Show() end end
     end
 
     local usedCols = (n < cols) and n or cols
     local usedRows = math.floor((n - 1) / cols) + 1
     bar:SetWidth(PAD * 2 + usedCols * colW - db.spacing)
-    bar:SetHeight(TITLE_H + usedRows * rowH + 6)
+    bar:SetHeight(titleH + usedRows * rowH + 6)
 end
 
 -- fade the whole bar based on whether anything needs casting
@@ -194,7 +202,8 @@ function ImmersivePallyPower_ToggleDemo()
                 -- first few always missing so the bar is visible to inspect
                 local nneed = (i <= 3) and math.random(1, 4) or math.random(0, 4)
                 local nhave = math.random(0, 5)
-                btn.need, btn.have = {}, {}
+                -- all four tables must exist; PallyPower's tooltip concats them
+                btn.need, btn.have, btn.range, btn.dead = {}, {}, {}, {}
                 for k = 1, nneed do table.insert(btn.need, "demo" .. k) end
                 for k = 1, nhave do table.insert(btn.have, "have" .. k) end
                 btn.classID, btn.buffID = class, buff
@@ -218,7 +227,7 @@ function ImmersivePallyPower_ToggleDemo()
     else
         for i = 1, 10 do
             local btn = getglobal("PallyPowerBuffBarBuff" .. i)
-            if btn then btn.need, btn.have = {}, {} end
+            if btn then btn.need, btn.have, btn.range, btn.dead = {}, {}, {}, {} end
         end
     end
     if PallyPower_UpdateUI then PallyPower_UpdateUI() end
