@@ -59,6 +59,27 @@ local function StripButton(b)
     b:SetBackdrop(nil)
 end
 
+-- flat rectangular button (strips the Blizzard template art)
+local function FlatButton(b)
+    if not b then return end
+    if b.SetNormalTexture then b:SetNormalTexture("") end
+    if b.SetPushedTexture then b:SetPushedTexture("") end
+    if b.SetDisabledTexture then b:SetDisabledTexture("") end
+    local px = GetPixel()
+    b:SetBackdrop({
+        bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = false, tileSize = 0,
+        edgeFile = "Interface\\BUTTONS\\WHITE8X8", edgeSize = px,
+        insets = { left = -px, right = -px, top = -px, bottom = -px },
+    })
+    b:SetBackdropColor(0.14, 0.14, 0.14, 0.9)
+    b:SetBackdropBorderColor(0.28, 0.28, 0.28, 1)
+    if b.SetHighlightTexture then
+        b:SetHighlightTexture("Interface\\BUTTONS\\WHITE8X8")
+        local hl = b:GetHighlightTexture()
+        if hl then hl:SetAlpha(0.12) end
+    end
+end
+
 local function ApplyTheme()
     if STYLE == "classic" then return end
     ModernBar(getglobal("PallyPowerBuffBar"), 0.8)
@@ -67,6 +88,10 @@ local function ApplyTheme()
     for i = 1, 10 do
         StripButton(getglobal("PallyPowerBuffBarBuff" .. i))
     end
+    -- assignment-frame buttons
+    FlatButton(getglobal("PallyPowerFrameRefresh"))
+    FlatButton(getglobal("PallyPowerFrameClear"))
+    FlatButton(getglobal("PallyPowerFrameOptions"))
 end
 
 local eventFrame = CreateFrame("Frame")

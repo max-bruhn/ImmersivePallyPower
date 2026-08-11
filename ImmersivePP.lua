@@ -67,6 +67,28 @@ local function CropIcons(btn)
     if bi and bi.SetTexCoord then bi:SetTexCoord(lo, hi, lo, hi) end
 end
 
+-- Crop the assignment-frame icons (skill icons + class-assignment icons) the
+-- same way, so the raid-lead grid gets clean rectangular icons in modern.
+local function CropAssignmentIcons()
+    if ImmersivePallyPower_CurrentStyle and ImmersivePallyPower_CurrentStyle() ~= "modern" then
+        return
+    end
+    local lo, hi = ICON_CROP, 1 - ICON_CROP
+    for i = 1, 12 do
+        local row = getglobal("PallyPowerFramePlayer" .. i)
+        if row and row:IsShown() then
+            for id = 0, 5 do
+                local ic = getglobal("PallyPowerFramePlayer" .. i .. "Icon" .. id)
+                if ic and ic.SetTexCoord then ic:SetTexCoord(lo, hi, lo, hi) end
+            end
+            for id = 0, 9 do
+                local ci = getglobal("PallyPowerFramePlayer" .. i .. "Class" .. id .. "Icon")
+                if ci and ci.SetTexCoord then ci:SetTexCoord(lo, hi, lo, hi) end
+            end
+        end
+    end
+end
+
 -- In the modern theme the buttons have no coloured box, so convey status on
 -- the count text: red = nobody buffed, yellow = some still missing.
 local function ColorStatusText(btn)
@@ -189,6 +211,14 @@ eventFrame:SetScript("OnEvent", function()
     if PallyPower_UpdateUI and not origUpdateUI then
         origUpdateUI = PallyPower_UpdateUI
         PallyPower_UpdateUI = HookedUpdateUI
+    end
+    -- also crop the assignment grid's icons after it repopulates
+    if PallyPowerGrid_Update and not ImmersivePP_origGrid then
+        ImmersivePP_origGrid = PallyPowerGrid_Update
+        PallyPowerGrid_Update = function()
+            ImmersivePP_origGrid()
+            CropAssignmentIcons()
+        end
     end
     ticker = CreateFrame("Frame")
     ticker:SetScript("OnUpdate", TickerUpdate)
