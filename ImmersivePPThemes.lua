@@ -41,27 +41,31 @@ local function ModernPanel(f, a)
     f:SetBackdropBorderColor(0.22, 0.22, 0.22, 1)
 end
 
--- buff buttons: keep PallyPower's status fill, just give a clean 1px border
-local function ModernButtonBorder(b)
-    if not b then return end
-    local px = GetPixel()
-    local r, g, bl, a = b:GetBackdropColor()
-    b:SetBackdrop({
+-- the buff bar itself: ONE flat, borderless, semi-opaque backdrop
+local function ModernBar(f, a)
+    if not f then return end
+    f:SetBackdrop({
         bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = false, tileSize = 0,
-        edgeFile = "Interface\\BUTTONS\\WHITE8X8", edgeSize = px,
-        insets = { left = -px, right = -px, top = -px, bottom = -px },
+        insets = { left = 0, right = 0, top = 0, bottom = 0 },
     })
-    if r then b:SetBackdropColor(r, g, bl, a) end
-    b:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+    f:SetBackdropColor(0.05, 0.05, 0.05, a or 0.8)
+end
+
+-- buff buttons: remove their individual box entirely so they sit inside the
+-- single bar backdrop. Status is shown by the count text colour instead
+-- (handled in ImmersivePP.lua on each update).
+local function StripButton(b)
+    if not b then return end
+    b:SetBackdrop(nil)
 end
 
 local function ApplyTheme()
     if STYLE == "classic" then return end
-    ModernPanel(getglobal("PallyPowerBuffBar"), 0.9)
+    ModernBar(getglobal("PallyPowerBuffBar"), 0.8)
     ModernPanel(getglobal("PallyPowerFrame"), 0.92)
     ModernPanel(getglobal("PallyPower_OptionsFrame"), 0.95)
     for i = 1, 10 do
-        ModernButtonBorder(getglobal("PallyPowerBuffBarBuff" .. i))
+        StripButton(getglobal("PallyPowerBuffBarBuff" .. i))
     end
 end
 

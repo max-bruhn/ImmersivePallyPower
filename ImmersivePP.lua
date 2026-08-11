@@ -45,6 +45,27 @@ local function NeedsCount(btn)
     return 0
 end
 
+local function HaveCount(btn)
+    if btn.have then return table.getn(btn.have) end
+    return 0
+end
+
+-- In the modern theme the buttons have no coloured box, so convey status on
+-- the count text: red = nobody buffed, yellow = some still missing.
+local function ColorStatusText(btn)
+    if ImmersivePallyPower_CurrentStyle and ImmersivePallyPower_CurrentStyle() ~= "modern" then
+        return
+    end
+    local name = btn:GetName()
+    local txt = name and getglobal(name .. "Text")
+    if not txt then return end
+    if HaveCount(btn) == 0 then
+        txt:SetTextColor(1, 0.25, 0.25)   -- nobody has it
+    else
+        txt:SetTextColor(1, 0.9, 0.4)     -- some missing
+    end
+end
+
 -- re-lay-out the buttons PallyPower just populated: optionally drop the
 -- fully-buffed ones, arrange the rest in a grid, resize the bar
 local function Relayout()
@@ -83,6 +104,7 @@ local function Relayout()
         if not db.growDown then y = -(TITLE_H) - (math.floor((n - 1) / cols) - row) * rowH end
         b:ClearAllPoints()
         b:SetPoint("TOPLEFT", bar, "TOPLEFT", x, y)
+        ColorStatusText(b)
     end
 
     local usedCols = (n < cols) and n or cols
