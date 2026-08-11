@@ -209,7 +209,16 @@ local function Relayout()
     end
 
     local modern = IsFlat()
-    local titleH = modern and 30 or TITLE_H   -- room below the title before buttons
+    local titleH = modern and 24 or TITLE_H   -- room below the title before buttons
+    if modern then
+        -- replace the wide "Pally Buffs (0)" label with a small iPP tag
+        local tt = getglobal("PallyPowerBuffBarTitleText")
+        if tt then
+            tt:SetText("|cff33ffcci|r|cffffd200PP|r")
+            local f, _, fl = tt:GetFont()
+            if f then tt:SetFont(f, 11, fl) end
+        end
+    end
     local bw, bh
     if modern then bw, bh = ComputeButtonSize() else bw, bh = BUTTON_W, BUTTON_H end
     local rowH = bh + db.spacing
