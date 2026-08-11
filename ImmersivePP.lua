@@ -18,6 +18,7 @@ local function InitDefaults()
     Default("columns", 1)          -- buttons per row (1 = vertical stack)
     Default("scale", 1.0)          -- extra size multiplier on the bar
     Default("spacing", 2)          -- gap between buttons (px)
+    Default("barAlpha", 0.8)       -- modern bar background opacity
     Default("growDown", true)      -- grid grows downward (else upward)
 end
 

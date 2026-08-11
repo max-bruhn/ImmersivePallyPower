@@ -44,14 +44,23 @@ local function ModernPanel(f, a)
     f:SetBackdropBorderColor(0.22, 0.22, 0.22, 1)
 end
 
--- the buff bar itself: ONE flat, borderless, semi-opaque backdrop
-local function ModernBar(f, a)
+-- the buff bar itself: ONE flat, borderless backdrop at the configured opacity
+local function ModernBar(f)
     if not f then return end
     f:SetBackdrop({
         bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = false, tileSize = 0,
         insets = { left = 0, right = 0, top = 0, bottom = 0 },
     })
-    f:SetBackdropColor(0.05, 0.05, 0.05, a or 0.8)
+    f:SetBackdropColor(0.05, 0.05, 0.05, ImmersivePallyPowerDB.barAlpha or 0.8)
+end
+
+-- live-applies the background opacity (modern theme only)
+function ImmersivePallyPower_ApplyBarAlpha()
+    if normStyle(ImmersivePallyPowerDB.style) ~= "modern" then return end
+    local bar = getglobal("PallyPowerBuffBar")
+    if bar and bar.SetBackdropColor then
+        bar:SetBackdropColor(0.05, 0.05, 0.05, ImmersivePallyPowerDB.barAlpha or 0.8)
+    end
 end
 
 -- buff buttons: remove their individual box entirely so they sit inside the
@@ -85,7 +94,7 @@ end
 
 local function ApplyTheme()
     if STYLE == "classic" then return end
-    ModernBar(getglobal("PallyPowerBuffBar"), 0.8)
+    ModernBar(getglobal("PallyPowerBuffBar"))
     ModernPanel(getglobal("PallyPowerFrame"), 0.92)
     ModernPanel(getglobal("PallyPower_OptionsFrame"), 0.95)
     for i = 1, 10 do

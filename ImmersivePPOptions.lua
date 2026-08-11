@@ -101,7 +101,7 @@ end
 local function Build()
     db = ImmersivePallyPowerDB   -- rebind to the saved table (see ImmersivePP.lua)
     panel = CreateFrame("Frame", "ImmersivePPOptions", UIParent)
-    panel:SetWidth(340); panel:SetHeight(392)
+    panel:SetWidth(340); panel:SetHeight(428)
     panel:SetPoint("CENTER", UIParent, "CENTER", 0, 60)
     panel:SetFrameStrata("DIALOG")
     Flat(panel, 0.06, 0.06, 0.06, 0.95)
@@ -131,17 +131,20 @@ local function Build()
         function() return db.scale end, function(v) db.scale = v end)
     Slider(panel, "ImmersivePPSpacing", "Spacing", 20, -184, 0, 12, 1,
         function() return db.spacing end, function(v) db.spacing = v end)
+    Slider(panel, "ImmersivePPAlpha", "Background opacity", 20, -218, 0, 1.0, 0.05,
+        function() return db.barAlpha end,
+        function(v) db.barAlpha = v; if ImmersivePallyPower_ApplyBarAlpha then ImmersivePallyPower_ApplyBarAlpha() end end)
 
     -- PallyPower's own options, merged in (reparented from its options frame)
     local ppLabel = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    ppLabel:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -212)
+    ppLabel:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -248)
     ppLabel:SetText("|cffffd200PallyPower|r")
-    HostCheck("PallyPower_OptionsFrameSmart",    "Smart buffs (auto-pick best blessing)", 14, -230)
-    HostCheck("PallyPower_OptionsFrameFeedback", "Chat feedback on cast",                 14, -252)
-    HostCheck("FiveMinBlessingChk",              "Normal blessings only (10 min, no Greater)", 14, -274)
+    HostCheck("PallyPower_OptionsFrameSmart",    "Smart buffs (auto-pick best blessing)", 14, -266)
+    HostCheck("PallyPower_OptionsFrameFeedback", "Chat feedback on cast",                 14, -288)
+    HostCheck("FiveMinBlessingChk",              "Normal blessings only (10 min, no Greater)", 14, -310)
 
     local themeLabel = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    themeLabel:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -304)
+    themeLabel:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -340)
     themeLabel:SetText("|cffffd200Theme|r")
 
     themeButtons = {}
