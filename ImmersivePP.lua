@@ -20,11 +20,17 @@ local function InitDefaults()
     Default("spacing", 2)          -- gap between buttons (px)
     Default("barAlpha", 0.8)       -- modern bar background opacity
     Default("growDown", true)      -- grid grows downward (else upward)
+    Default("iconGap", 2)          -- gap between the class and buff icons
+    Default("textPos", "right")    -- text block vs icons: right/left/above/below
+    Default("textAlign", "left")   -- text justify: left/center/right
+    Default("textSpacing", 4)      -- gap between text block and icons
 end
 
 local BUTTON_W, BUTTON_H = 100, 34
 local TITLE_H = 25
 local PAD = 5
+local ICON = 26                    -- class/buff icon size
+local TEXTW, TEXTH = 36, 26        -- text block (count over time)
 
 local fade = { a = 1, target = 1, from = 1, start = 0, dur = 0 }
 local FADE_IN, FADE_OUT = 0.15, 0.6
@@ -108,6 +114,57 @@ local function ColorStatusText(btn)
     end
 end
 
+-- In modern, each button is re-laid-out into a tight box: two icons (with a
+-- configurable gap) plus a text block (count over time) placed above/right/
+-- below/left with its own spacing and alignment. Returns the box size.
+local function ComputeButtonSize()
+    local iconsW = ICON * 2 + db.iconGap
+    if db.textPos == "above" or db.textPos == "below" then
+        local w = (iconsW > TEXTW) and iconsW or TEXTW
+        return w, ICON + db.textSpacing + TEXTH
+    end
+    return iconsW + db.textSpacing + TEXTW, ICON
+end
+
+local function LayoutButton(btn, bw, bh)
+    local nm = btn:GetName()
+    local ci = getglobal(nm .. "ClassIcon")
+    local bi = getglobal(nm .. "BuffIcon")
+    local tx = getglobal(nm .. "Text")
+    local tm = getglobal(nm .. "Time")
+    if not (ci and bi and tx and tm) then return end
+    local gap, tsp, pos, align = db.iconGap, db.textSpacing, db.textPos, db.textAlign
+    local iconsW = ICON * 2 + gap
+    local function ax(blockW)
+        if align == "center" then return (bw - blockW) / 2
+        elseif align == "right" then return bw - blockW
+        else return 0 end
+    end
+    local ix, iy, tX, tY
+    if pos == "above" then
+        tX = ax(TEXTW); tY = 0
+        ix = ax(iconsW); iy = -(TEXTH + tsp)
+    elseif pos == "below" then
+        ix = ax(iconsW); iy = 0
+        tX = ax(TEXTW); tY = -(ICON + tsp)
+    elseif pos == "left" then
+        tX = 0; tY = 0
+        ix = TEXTW + tsp; iy = 0
+    else -- right
+        ix = 0; iy = 0
+        tX = iconsW + tsp; tY = 0
+    end
+    ci:ClearAllPoints(); ci:SetWidth(ICON); ci:SetHeight(ICON)
+    ci:SetPoint("TOPLEFT", btn, "TOPLEFT", ix, iy)
+    bi:ClearAllPoints(); bi:SetWidth(ICON); bi:SetHeight(ICON)
+    bi:SetPoint("TOPLEFT", btn, "TOPLEFT", ix + ICON + gap, iy)
+    tx:ClearAllPoints(); tx:SetWidth(TEXTW); tx:SetJustifyH(align)
+    tx:SetPoint("TOPLEFT", btn, "TOPLEFT", tX, tY); tx:Show()
+    tm:ClearAllPoints(); tm:SetWidth(TEXTW); tm:SetJustifyH(align)
+    tm:SetPoint("TOPLEFT", btn, "TOPLEFT", tX, tY - 13); tm:Show()
+    btn:SetWidth(bw); btn:SetHeight(bh)
+end
+
 -- re-lay-out the buttons PallyPower just populated: optionally drop the
 -- fully-buffed ones, arrange the rest in a grid, resize the bar
 local function Relayout()
@@ -134,14 +191,12 @@ local function Relayout()
         return
     end
 
-    -- The button frame is 34px but its icons are only 26px (4px padding top and
-    -- bottom). In modern we pack by the icon height so spacing 0 = icons flush,
-    -- and hide the cooldown-time text (it would collide when packed tight).
     local modern = IsFlat()
-    local ICON = 26
-    local rowH = (modern and ICON or BUTTON_H) + db.spacing
-    local colW = (modern and (ICON * 2) or BUTTON_W) + db.spacing
     local titleH = modern and 20 or TITLE_H
+    local bw, bh
+    if modern then bw, bh = ComputeButtonSize() else bw, bh = BUTTON_W, BUTTON_H end
+    local rowH = bh + db.spacing
+    local colW = bw + db.spacing
     for i = 1, n do
         local b = shown[i]
         local col = math.mod(i - 1, cols)
@@ -151,10 +206,9 @@ local function Relayout()
         if not db.growDown then y = -(titleH) - (math.floor((n - 1) / cols) - row) * rowH end
         b:ClearAllPoints()
         b:SetPoint("TOPLEFT", bar, "TOPLEFT", x, y)
+        if modern then LayoutButton(b, bw, bh) end
         ColorStatusText(b)
         CropIcons(b)
-        local tm = getglobal(b:GetName() .. "Time")
-        if tm then if modern then tm:Hide() else tm:Show() end end
     end
 
     local usedCols = (n < cols) and n or cols

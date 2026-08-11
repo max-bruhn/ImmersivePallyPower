@@ -110,7 +110,7 @@ end
 local function Build()
     db = ImmersivePallyPowerDB   -- rebind to the saved table (see ImmersivePP.lua)
     panel = CreateFrame("Frame", "ImmersivePPOptions", UIParent)
-    panel:SetWidth(340); panel:SetHeight(456)
+    panel:SetWidth(340); panel:SetHeight(556)
     panel:SetPoint("CENTER", UIParent, "CENTER", 0, 60)
     panel:SetFrameStrata("DIALOG")
     Flat(panel, 0.06, 0.06, 0.06, 0.95)
@@ -143,17 +143,35 @@ local function Build()
     Slider(panel, "ImmersivePPAlpha", "Background opacity", 20, -218, 0, 1.0, 0.05,
         function() return db.barAlpha end,
         function(v) db.barAlpha = v; if ImmersivePallyPower_ApplyBarAlpha then ImmersivePallyPower_ApplyBarAlpha() end end)
+    Slider(panel, "ImmersivePPIconGap", "Icon gap", 20, -252, 0, 12, 1,
+        function() return db.iconGap end, function(v) db.iconGap = v end)
+    Slider(panel, "ImmersivePPTextGap", "Text spacing", 20, -286, 0, 20, 1,
+        function() return db.textSpacing end, function(v) db.textSpacing = v end)
+
+    -- text position + alignment as cycle buttons
+    local POS = { "right", "below", "left", "above" }
+    local ALIGN = { "left", "center", "right" }
+    local function cap(s) return string.upper(string.sub(s, 1, 1)) .. string.sub(s, 2) end
+    local function nextIn(list, cur) for i = 1, table.getn(list) do if list[i] == cur then return list[math.mod(i, table.getn(list)) + 1] end end return list[1] end
+    local posBtn = Btn(panel, 150, "Text: " .. cap(db.textPos), function()
+        db.textPos = nextIn(POS, db.textPos); this.label:SetText("Text: " .. cap(db.textPos)); Apply()
+    end)
+    posBtn:SetPoint("TOPLEFT", panel, "TOPLEFT", 20, -314)
+    local alignBtn = Btn(panel, 150, "Align: " .. cap(db.textAlign), function()
+        db.textAlign = nextIn(ALIGN, db.textAlign); this.label:SetText("Align: " .. cap(db.textAlign)); Apply()
+    end)
+    alignBtn:SetPoint("LEFT", posBtn, "RIGHT", 8, 0)
 
     -- PallyPower's own options, merged in (reparented from its options frame)
     local ppLabel = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    ppLabel:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -248)
+    ppLabel:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -344)
     ppLabel:SetText("|cffffd200PallyPower|r")
-    HostCheck("PallyPower_OptionsFrameSmart",    "Smart buffs (auto-pick best blessing)", 14, -266)
-    HostCheck("PallyPower_OptionsFrameFeedback", "Chat feedback on cast",                 14, -288)
-    HostCheck("FiveMinBlessingChk",              "Normal blessings only (10 min, no Greater)", 14, -310)
+    HostCheck("PallyPower_OptionsFrameSmart",    "Smart buffs (auto-pick best blessing)", 14, -362)
+    HostCheck("PallyPower_OptionsFrameFeedback", "Chat feedback on cast",                 14, -384)
+    HostCheck("FiveMinBlessingChk",              "Normal blessings only (10 min, no Greater)", 14, -406)
 
     local themeLabel = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    themeLabel:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -340)
+    themeLabel:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -436)
     themeLabel:SetText("|cffffd200Theme|r")
 
     themeButtons = {}
