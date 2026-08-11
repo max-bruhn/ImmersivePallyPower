@@ -209,7 +209,7 @@ local function Relayout()
     end
 
     local modern = IsFlat()
-    local titleH = modern and 20 or TITLE_H
+    local titleH = modern and 30 or TITLE_H   -- room below the title before buttons
     local bw, bh
     if modern then bw, bh = ComputeButtonSize() else bw, bh = BUTTON_W, BUTTON_H end
     local rowH = bh + db.spacing
