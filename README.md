@@ -9,6 +9,8 @@ PallyPower is the classic addon for coordinating paladin blessings in a raid: as
 - **Configurable layout** — grow vertical or horizontal, set the number of columns/rows, and scale the size.
 - **One tidy options window** — the immersive/layout settings and PallyPower's own options, together in a modern panel (`/ipp`).
 
+![Immersive PallyPower](screenshot.png)
+
 > Tested on Turtle WoW **1.17** and **1.18** clients, including **OctoWoW** and **Capycraft**.
 
 > ⚠️ This replaces PallyPower. **Don't run both at once** — disable the original PallyPower if you have it.
