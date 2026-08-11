@@ -50,6 +50,23 @@ local function HaveCount(btn)
     return 0
 end
 
+-- In the modern theme, crop the built-in icon border (~8%) so the class and
+-- buff icons read as clean edge-to-edge rectangles instead of the default
+-- rounded/beveled look. Cropping keeps sharpness (no downscaling).
+local ICON_CROP = 0.08
+local function CropIcons(btn)
+    if ImmersivePallyPower_CurrentStyle and ImmersivePallyPower_CurrentStyle() ~= "modern" then
+        return
+    end
+    local name = btn:GetName()
+    if not name then return end
+    local lo, hi = ICON_CROP, 1 - ICON_CROP
+    local ci = getglobal(name .. "ClassIcon")
+    local bi = getglobal(name .. "BuffIcon")
+    if ci and ci.SetTexCoord then ci:SetTexCoord(lo, hi, lo, hi) end
+    if bi and bi.SetTexCoord then bi:SetTexCoord(lo, hi, lo, hi) end
+end
+
 -- In the modern theme the buttons have no coloured box, so convey status on
 -- the count text: red = nobody buffed, yellow = some still missing.
 local function ColorStatusText(btn)
@@ -105,6 +122,7 @@ local function Relayout()
         b:ClearAllPoints()
         b:SetPoint("TOPLEFT", bar, "TOPLEFT", x, y)
         ColorStatusText(b)
+        CropIcons(b)
     end
 
     local usedCols = (n < cols) and n or cols
