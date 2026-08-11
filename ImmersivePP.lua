@@ -117,13 +117,20 @@ end
 -- In modern, each button is re-laid-out into a tight box: two icons (with a
 -- configurable gap) plus a text block (count over time) placed above/right/
 -- below/left with its own spacing and alignment. Returns the box size.
+-- text block dimensions: stacked (count over time) beside the icons, but a
+-- single horizontal line (count + time) when placed above/below
+local INLINE_W, INLINE_H = 60, 14
+local function IsInline() return db.textPos == "above" or db.textPos == "below" end
+local function TextW() return IsInline() and INLINE_W or TEXTW end
+local function TextH() return IsInline() and INLINE_H or TEXTH end
+
 local function ComputeButtonSize()
     local iconsW = ICON * 2 + db.iconGap
-    if db.textPos == "above" or db.textPos == "below" then
-        local w = (iconsW > TEXTW) and iconsW or TEXTW
-        return w, ICON + db.textSpacing + TEXTH
+    if IsInline() then
+        local w = (iconsW > TextW()) and iconsW or TextW()
+        return w, ICON + db.textSpacing + TextH()
     end
-    return iconsW + db.textSpacing + TEXTW, ICON
+    return iconsW + db.textSpacing + TextW(), ICON
 end
 
 local function LayoutButton(btn, bw, bh)
@@ -135,6 +142,7 @@ local function LayoutButton(btn, bw, bh)
     if not (ci and bi and tx and tm) then return end
     local gap, tsp, pos, align = db.iconGap, db.textSpacing, db.textPos, db.textAlign
     local iconsW = ICON * 2 + gap
+    local tw = TextW()
     local function ax(blockW)
         if align == "center" then return (bw - blockW) / 2
         elseif align == "right" then return bw - blockW
@@ -142,14 +150,14 @@ local function LayoutButton(btn, bw, bh)
     end
     local ix, iy, tX, tY
     if pos == "above" then
-        tX = ax(TEXTW); tY = 0
-        ix = ax(iconsW); iy = -(TEXTH + tsp)
+        tX = ax(tw); tY = 0
+        ix = ax(iconsW); iy = -(TextH() + tsp)
     elseif pos == "below" then
         ix = ax(iconsW); iy = 0
-        tX = ax(TEXTW); tY = -(ICON + tsp)
+        tX = ax(tw); tY = -(ICON + tsp)
     elseif pos == "left" then
         tX = 0; tY = 0
-        ix = TEXTW + tsp; iy = 0
+        ix = tw + tsp; iy = 0
     else -- right
         ix = 0; iy = 0
         tX = iconsW + tsp; tY = 0
@@ -158,10 +166,19 @@ local function LayoutButton(btn, bw, bh)
     ci:SetPoint("TOPLEFT", btn, "TOPLEFT", ix, iy)
     bi:ClearAllPoints(); bi:SetWidth(ICON); bi:SetHeight(ICON)
     bi:SetPoint("TOPLEFT", btn, "TOPLEFT", ix + ICON + gap, iy)
-    tx:ClearAllPoints(); tx:SetWidth(TEXTW); tx:SetJustifyH(align)
-    tx:SetPoint("TOPLEFT", btn, "TOPLEFT", tX, tY); tx:Show()
-    tm:ClearAllPoints(); tm:SetWidth(TEXTW); tm:SetJustifyH(align)
-    tm:SetPoint("TOPLEFT", btn, "TOPLEFT", tX, tY - 13); tm:Show()
+    if IsInline() then
+        -- one line: count then time, side by side
+        tx:ClearAllPoints(); tx:SetWidth(18); tx:SetJustifyH("right")
+        tx:SetPoint("TOPLEFT", btn, "TOPLEFT", tX, tY); tx:Show()
+        tm:ClearAllPoints(); tm:SetWidth(38); tm:SetJustifyH("left")
+        tm:SetPoint("LEFT", tx, "RIGHT", 4, 0); tm:Show()
+    else
+        -- stacked: count over time
+        tx:ClearAllPoints(); tx:SetWidth(tw); tx:SetJustifyH(align)
+        tx:SetPoint("TOPLEFT", btn, "TOPLEFT", tX, tY); tx:Show()
+        tm:ClearAllPoints(); tm:SetWidth(tw); tm:SetJustifyH(align)
+        tm:SetPoint("TOPLEFT", btn, "TOPLEFT", tX, tY - 13); tm:Show()
+    end
     btn:SetWidth(bw); btn:SetHeight(bh)
 end
 
