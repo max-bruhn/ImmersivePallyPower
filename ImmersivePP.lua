@@ -59,7 +59,7 @@ local CLASS_CROP = 0.14       -- assignment class/skill icons need a deeper crop
 local function Style()
     return (ImmersivePallyPower_CurrentStyle and ImmersivePallyPower_CurrentStyle()) or "modern"
 end
-local function IsFlat() local s = Style(); return s == "modern" or s == "minimal" end
+local function IsFlat() return Style() == "modern" end
 
 local function CropIcons(btn)
     if not IsFlat() then return end
@@ -124,19 +124,12 @@ local function Relayout()
         end
     end
 
-    -- minimal theme: tighter padding, no title strip, hidden time text
-    local minimal = (Style() == "minimal")
-    local pad = minimal and 2 or PAD
-    local titleH = minimal and 4 or TITLE_H
-    local titleFrame = getglobal("PallyPowerBuffBarTitle")
-    if titleFrame then if minimal then titleFrame:Hide() else titleFrame:Show() end end
-
     local cols = db.columns
     if cols < 1 then cols = 1 end
     local n = table.getn(shown)
     if n == 0 then
-        bar:SetWidth(BUTTON_W + pad * 2)
-        bar:SetHeight(titleH + 8)
+        bar:SetWidth(BUTTON_W + PAD * 2)
+        bar:SetHeight(TITLE_H + 8)
         return
     end
 
@@ -146,22 +139,19 @@ local function Relayout()
         local b = shown[i]
         local col = math.mod(i - 1, cols)
         local row = math.floor((i - 1) / cols)
-        local x = pad + col * colW
-        local y = -(titleH) - row * rowH
-        if not db.growDown then y = -(titleH) - (math.floor((n - 1) / cols) - row) * rowH end
+        local x = PAD + col * colW
+        local y = -(TITLE_H) - row * rowH
+        if not db.growDown then y = -(TITLE_H) - (math.floor((n - 1) / cols) - row) * rowH end
         b:ClearAllPoints()
         b:SetPoint("TOPLEFT", bar, "TOPLEFT", x, y)
         ColorStatusText(b)
         CropIcons(b)
-        -- minimal: hide the cooldown-time text to reduce clutter; count stays
-        local tm = getglobal(b:GetName() .. "Time")
-        if tm then if minimal then tm:Hide() else tm:Show() end end
     end
 
     local usedCols = (n < cols) and n or cols
     local usedRows = math.floor((n - 1) / cols) + 1
-    bar:SetWidth(pad * 2 + usedCols * colW - db.spacing)
-    bar:SetHeight(titleH + usedRows * rowH + (minimal and 2 or 6))
+    bar:SetWidth(PAD * 2 + usedCols * colW - db.spacing)
+    bar:SetHeight(TITLE_H + usedRows * rowH + 6)
 end
 
 -- fade the whole bar based on whether anything needs casting

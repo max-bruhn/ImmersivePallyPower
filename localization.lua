@@ -40,11 +40,9 @@ PallyPower_BuffBarTitle = "Pally Buffs (%d)"
 
 --- By Lines... Keep People the same, feel free to add yourself in the _Credits3 line if your localizing
 --- And feel free to add a friend or two to special thanks
-PallyPower_Credits1 = "Relar Pally Power - Version: "..PallyPower_Version
-PallyPower_Credits2 = "Originaly by Sneakyfoot of Resurrection of Nathrezim"
-PallyPower_Credits3 = "Updated version for Turtle WoW, added Shamans, by Rake/Xerron"
-PallyPower_Credits4 = "Fixes and debugging by Relar"
-PallyPower_Credits5 = "Minor fixes for Turtle WoW patch 1.17.2 by Eiriss"
+PallyPower_Credits1 = "Immersive PallyPower"
+PallyPower_Credits2 = "A modern, immersive fork of Relar's PallyPower for Turtle WoW."
+PallyPower_Credits3 = "Lineage: Sneakyfoot (original); Rake/Xerron, Relar, Eiriss (Turtle).  /ipp for options."
 
 -- Buff name, Class Name
 PallyPower_CouldntFind = "Couldn't find a target for %s on %s!"

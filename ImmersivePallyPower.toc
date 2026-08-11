@@ -5,7 +5,7 @@
 ## Version: 0.1.0
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
-## X-Credits: Continuation of Relar's Turtle-WoW PallyPower. Original PallyPower by Aznamir.
+## X-Credits: Fork of Relar's Turtle-WoW PallyPower. Original by Sneakyfoot; Turtle updates by Rake/Xerron, Relar, Eiriss.
 ## SavedVariablesPerCharacter: PallyPower_Assignments, FiveMinuteBlessingOn, PP_PerUser, ImmersivePallyPowerDB
 PallyPower.lua
 PallyPower.xml

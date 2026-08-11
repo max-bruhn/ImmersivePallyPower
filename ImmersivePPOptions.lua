@@ -145,7 +145,7 @@ local function Build()
     themeLabel:SetText("|cffffd200Theme|r")
 
     themeButtons = {}
-    local defs = { { "modern", "Modern", 0 }, { "minimal", "Minimal", 76 }, { "classic", "Classic", 152 } }
+    local defs = { { "modern", "Modern", 0 }, { "classic", "Classic", 76 } }
     for i = 1, table.getn(defs) do
         local key, lbl, off = defs[i][1], defs[i][2], defs[i][3]
         local b = Btn(panel, 70, lbl, function()

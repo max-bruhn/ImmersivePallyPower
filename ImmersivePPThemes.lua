@@ -22,8 +22,7 @@ end
 
 local STYLE = "modern"
 local function normStyle(s)
-    if s == "classic" or s == "minimal" then return s end
-    return "modern"
+    return (s == "classic") and "classic" or "modern"
 end
 local function ResolveStyle()
     STYLE = normStyle(ImmersivePallyPowerDB.style)

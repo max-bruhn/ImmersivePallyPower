@@ -666,11 +666,9 @@ end
 
 function PallyPower_ShowCredits()
     GameTooltip:SetOwner(this, "ANCHOR_TOPLEFT")
-    GameTooltip:SetText(PallyPower_Credits1, 1, 1, 1)
-    GameTooltip:AddLine(PallyPower_Credits2, 1, 1, 1);
-    GameTooltip:AddLine(PallyPower_Credits3);
-    GameTooltip:AddLine(PallyPower_Credits4, 0, 1, 0);
-    GameTooltip:AddLine(PallyPower_Credits5);
+    GameTooltip:SetText(PallyPower_Credits1, 0.8, 0.8, 0.8)
+    GameTooltip:AddLine(PallyPower_Credits2, 0.7, 0.7, 0.7, 1)
+    GameTooltip:AddLine(PallyPower_Credits3, 0.7, 0.7, 0.7, 1)
     GameTooltip:Show()
 end
 
