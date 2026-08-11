@@ -356,6 +356,7 @@ eventFrame:SetScript("OnEvent", function()
     if event ~= "VARIABLES_LOADED" then return end
     -- rebind to the saved table: SavedVariables replace the global, so the
     -- reference captured at file load can be stale (settings wouldn't persist)
+    ImmersivePallyPowerDB = ImmersivePallyPowerDB or {}
     db = ImmersivePallyPowerDB
     InitDefaults()
     -- install the hook once PallyPower's function exists

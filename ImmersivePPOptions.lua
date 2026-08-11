@@ -108,6 +108,7 @@ local function HostCheck(name, label, x, y)
 end
 
 local function Build()
+    ImmersivePallyPowerDB = ImmersivePallyPowerDB or {}
     db = ImmersivePallyPowerDB   -- rebind to the saved table (see ImmersivePP.lua)
     panel = CreateFrame("Frame", "ImmersivePPOptions", UIParent)
     panel:SetWidth(340); panel:SetHeight(556)
