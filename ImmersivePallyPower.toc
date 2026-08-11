@@ -2,6 +2,7 @@
 ## Title: Immersive PallyPower
 ## Notes: PallyPower with immersive buff buttons that appear only when someone is missing a buff, configurable grow direction/rows/size, and Modern/Classic themes. Type /ipp for options.
 ## Author: Ronniel
+## Version: 0.1.0
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## X-Credits: Continuation of Relar's Turtle-WoW PallyPower. Original PallyPower by Aznamir.
@@ -9,3 +10,5 @@
 PallyPower.lua
 PallyPower.xml
 ImmersivePP.lua
+ImmersivePPThemes.lua
+ImmersivePPOptions.lua

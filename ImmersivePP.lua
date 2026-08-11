@@ -162,7 +162,12 @@ SlashCmdList["IMMERSIVEPALLYPOWER"] = function(msg)
     local sp = string.find(msg, " ")
     if sp then cmd = string.sub(msg, 1, sp - 1); rest = string.sub(msg, sp + 1) end
 
-    if cmd == "immersive" then
+    if cmd == "config" or cmd == "options" or cmd == "" then
+        if cmd == "" then
+            -- bare /ipp opens the panel; keep the command list under /ipp help
+        end
+        if ImmersivePallyPower_OpenOptions then ImmersivePallyPower_OpenOptions() end
+    elseif cmd == "immersive" then
         db.immersive = not db.immersive
         DEFAULT_CHAT_FRAME:AddMessage("ImmersivePallyPower: immersive " .. (db.immersive and "ON" or "OFF"))
     elseif cmd == "missing" then
